@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User List</title>
+</head>
+<body>
+  <h1>Registered Users</h1>
+  <ul id="userList"></ul>
+
+  <script>
+    // Call the Flask backend API
+    fetch("http://127.0.0.1:5000/api/users")
+      .then(response => response.json())
+      .then(data => {
+        const list = document.getElementById("userList");
+
+        data.forEach(user => {
+          const li = document.createElement("li");
+          li.textContent = `Username: ${user.username} | Type: ${user.type}`;
+          list.appendChild(li);
+        });
+      })
+      .catch(error => {
+        console.error("Error fetching users:", error);
+      });
+  </script>
+</body>
+</html>
+

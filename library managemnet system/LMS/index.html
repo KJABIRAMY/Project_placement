@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Library Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Library Management System</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="search.html">Search Books</a></li>
+        <li><a href="borrow.html">Borrow/Return</a></li>
+        <li><a href="history.html">User History</a></li>
+        <li><a href="admin.html">Admin Panel</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="login-section">
+      <h2>Welcome to the Library Management System</h2>
+      
+      <div id="user-info" style="text-align: center; margin-bottom: 20px; font-size: 1.1em;">
+        Not logged in
+      </div>
+
+      <!-- Login Form -->
+      <div class="form-box" id="login-section">
+        <h3>Login</h3>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="loginUser()">Login</button>
+        <p id="login-message" style="color: red;"></p>
+      </div>
+
+      <!-- Register Form -->
+      <div class="form-box" id="register-section">
+        <h3>Register</h3>
+        <input type="text" id="reg-username" placeholder="Username" required>
+        <input type="password" id="reg-password" placeholder="Password (min 6 characters)" required>
+        <input type="password" id="reg-confirm-password" placeholder="Confirm Password" required>
+        <select id="reg-role">
+          <option value="regular">Regular User</option>
+          <option value="premium">Premium User</option>
+          <option value="librarian">Librarian</option>
+        </select>
+        <button onclick="registerUser()">Register</button>
+        <p id="register-message" style="color: green;"></p>
+      </div>
+    </section>
+
+    <section class="info-section">
+      <h3>Account Types</h3>
+      <div class="account-types">
+        <div class="account-type">
+          <h4>Regular User</h4>
+          <p>• Can borrow up to 2 books at a time</p>
+          <p>• Access to search and borrowing features</p>
+          <p>• View personal borrowing history</p>
+        </div>
+        <div class="account-type">
+          <h4>Premium User</h4>
+          <p>• Can borrow up to 5 books at a time</p>
+          <p>• Access to search and borrowing features</p>
+          <p>• View personal borrowing history</p>
+          <p>• Priority access to new releases</p>
+        </div>
+        <div class="account-type">
+          <h4>Librarian</h4>
+          <p>• Can borrow up to 10 books at a time</p>
+          <p>• Full access to admin panel</p>
+          <p>• Can add/remove books from collection</p>
+          <p>• Can manage user accounts</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Library Management System</p>
+  </footer>
+
+  <script src="books.js"></script>
+  <script src="users.js"></script>
+  <script src="borrowing.js"></script>
+  <script src="script.js"></script>
+
+  <script>
+    // Password validation function
+    function validatePassword(password) {
+      if (password.length < 6) {
+        return "Password must be at least 6 characters long.";
+      }
+      
+      // Check for at least one letter, one number, or one special character
+      const hasLetter = /[a-zA-Z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+      
+      if (!hasLetter && !hasNumber && !hasSpecial) {
+        return "Password must contain at least one letter, number, or special character.";
+      }
+      
+      return null; // Password is valid
+    }
+
+    // Override the registerUser function to include password validation
+  <script>
+  function registerUser() {
+    const username = document.getElementById('reg-username').value;
+    const password = document.getElementById('reg-password').value;
+    const confirmPassword = document.getElementById('reg-confirm-password').value;
+    const role = document.getElementById('reg-role').value;
+    const registerMessage = document.getElementById('register-message');
+
+    // Validations
+    if (!username || !password || !confirmPassword) {
+      registerMessage.textContent = "All fields are required.";
+      registerMessage.style.color = "red";
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      registerMessage.textContent = passwordError;
+      registerMessage.style.color = "red";
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      registerMessage.textContent = "Passwords do not match.";
+      registerMessage.style.color = "red";
+      return;
+    }
+
+    // Call Flask API
+    fetch("http://localhost:5000/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+        user_type: role
+      })
+    })
+    .then(response => response.json().then(data => ({ status: response.status, body: data })))
+    .then(res => {
+      if (res.status === 201) {
+        registerMessage.textContent = "Registration successful!";
+        registerMessage.style.color = "green";
+        document.getElementById('reg-username').value = '';
+        document.getElementById('reg-password').value = '';
+        document.getElementById('reg-confirm-password').value = '';
+      } else {
+        registerMessage.textContent = res.body.message;
+        registerMessage.style.color = "red";
+      }
+    })
+    .catch(error => {
+      registerMessage.textContent = "Error registering user.";
+      registerMessage.style.color = "red";
+      console.error(error);
+    });
+  }
+</script>
+
+
+  <style>
+    .info-section {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .account-types {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .account-type {
+      padding: 15px;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .account-type h4 {
+      margin-top: 0;
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 5px;
+    }
+
+    .account-type p {
+      margin: 8px 0;
+      color: #555;
+    }
+
+    .form-box {
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .form-box input, .form-box select {
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+
+    .form-box button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+
+    #user-info {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #bee5eb;
+    }
+  </style>
+</body>
+</html>
